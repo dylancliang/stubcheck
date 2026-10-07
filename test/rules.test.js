@@ -81,6 +81,14 @@ test('over-income applicants are pointed to a band they fit', () => {
   assert.equal(smallestBandFor(1_000_000, 1), null);
 });
 
+test('every applicant gets a one-line next action for the admin queue', () => {
+  assert.equal(run('sam').nextAction, 'Request 4 more stubs');
+  assert.equal(run('tanya').nextAction, 'Request a current stub and the missing stub');
+  assert.equal(run('chen').nextAction, 'Check for one-time pay or a pending raise');
+  assert.equal(run('maria').nextAction, 'Move to full document review');
+  assert.equal(run('devon', 'hdc', { hasRentalVoucher: false }).nextAction, 'Ask whether household has a voucher');
+});
+
 test('every decision has an audit trail ending in the decision', () => {
   for (const c of CASES) {
     const r = run(c.id);
