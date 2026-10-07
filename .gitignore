@@ -1,0 +1,10 @@
+node_modules/
+.env
+.DS_Store
+*.log
+stubs.json
+# real pay stubs never go in this repo
+*.jpg
+*.jpeg
+*.png
+*.heic
