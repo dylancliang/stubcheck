@@ -6,6 +6,11 @@ A prototype income-eligibility checker for NYC affordable housing lotteries. It 
 
 **Live demo:** https://dylancliang.github.io/stubcheck/ (eight synthetic applicants; switch the building's document rule and watch outcomes change)
 
+The demo has two views:
+
+- **All applicants:** the queue a compliance manager works from. Every household's income against its limit, how many stubs are on file, the status, and the one next action to take. Filter by status, sort any column, or copy the queue as CSV.
+- **Applicant file:** one household in detail, with the flags, the pay stubs, the text that goes to the applicant, and the full audit trail.
+
 ## Why I built it
 
 New York gets millions of affordable housing applications a year for about ten thousand homes, and families wait well over a year. A lot of that time goes to income verification: someone reads every pay stub by hand, annualizes it, and checks it against a chart.
@@ -46,6 +51,7 @@ All applicants, employers, and figures are synthetic.
 - **Cross-check two ways.** Income is annualized from recent stubs and from year-to-date. If they disagree but land on the same side of the limit, it's noted and nothing happens. If the disagreement changes the answer, a person decides.
 - **Close calls go to people.** Within 2% of the limit, in either direction, the engine won't decide. Being $240 over could be a one-time bonus.
 - **A gap in YTD can explain itself.** When pay dates skip a period and year-to-date rises by exactly two paychecks, the stub is missing, not wrong. The engine asks for it instead of raising a fraud flag.
+- **Every file ends in one next action.** The queue never just says "needs review"; it says what to review ("Decide: recent stubs or year-to-date"), so an agent can work top to bottom without opening every file.
 - **Talk to applicants plainly.** Each outcome produces a text message. Document requests name the exact stub needed ("your pay stub from between May 29 and Jun 26"). Applicants who are over the limit are pointed to the AMI band they'd fit, instead of just being told no.
 
 ## What I'd ask an agent next
@@ -59,7 +65,7 @@ All applicants, employers, and figures are synthetic.
 
 ```bash
 npm install
-npm test                  # 11 tests, Node 20+
+npm test                  # 12 tests, Node 20+
 npm run serve             # open http://localhost:3000
 
 # Read real stub images with Claude (needs an API key)

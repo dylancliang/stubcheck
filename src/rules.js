@@ -239,13 +239,54 @@ export function evaluate({ application, listing, docRule, asOf }) {
   };
   log('Decision', `${DECISIONS[decision]}. Income from stubs is ${outcome === 'within' ? 'within' : outcome === 'over' ? 'over' : 'under'} the range.`);
 
-  return {
+  const result = {
     ...summary,
     members,
     flags,
     audit,
     applicantMessage: applicantMessage(application, summary, flags),
   };
+  result.nextAction = nextAction(result);
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// What the agent should do next, in one line. Used by the admin queue.
+// ---------------------------------------------------------------------------
+const REVIEW_ACTIONS = {
+  methods_change_result: 'Decide: recent stubs or year-to-date',
+  near_limit: 'Check for one-time pay or a pending raise',
+  ytd_mismatch: 'Verify pay with the employer',
+  mixed_frequency: 'Confirm pay schedule',
+  unknown_frequency: 'Confirm pay schedule',
+  too_close: 'Confirm pay schedule',
+};
+
+export function nextAction(result) {
+  const docs = result.flags.filter((f) => f.level === 'docs');
+  const reviews = result.flags.filter((f) => f.level === 'review');
+  switch (result.decision) {
+    case 'needs_documents': {
+      const label = (f) => {
+        if (f.code === 'too_few_stubs') return `${f.message.match(/Need (\d+)/)?.[1] ?? 'more'} more stubs`;
+        if (f.code === 'stale_stub') return 'a current stub';
+        if (f.code === 'gap') return 'the missing stub';
+        return 'pay stubs';
+      };
+      const items = [...new Set(docs.map(label))];
+      return 'Request ' + (items.length > 1 ? items.slice(0, -1).join(', ') + ' and ' + items.at(-1) : items[0]);
+    }
+    case 'needs_review':
+      return [...new Set(reviews.map((f) => REVIEW_ACTIONS[f.code] || 'Review flagged items'))].join('; ');
+    case 'eligible':
+      return 'Move to full document review';
+    case 'ineligible':
+      return result.preliminary === 'over'
+        ? result.altBand ? `Offer ${result.altBand}% AMI listings` : 'Notify applicant'
+        : 'Ask whether household has a voucher';
+    default:
+      return '';
+  }
 }
 
 // ---------------------------------------------------------------------------
