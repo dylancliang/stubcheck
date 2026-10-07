@@ -1,0 +1,15 @@
+{
+  "name": "stubcheck",
+  "version": "0.1.0",
+  "description": "Pay stub to income eligibility checker for NYC affordable housing lotteries",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test",
+    "extract": "node extract/extract.mjs",
+    "serve": "npx --yes serve ."
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0"
+  }
+}
