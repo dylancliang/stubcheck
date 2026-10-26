@@ -4,7 +4,7 @@ import { evaluate, smallestBandFor } from '../src/rules.js';
 import { CASES, AS_OF } from '../src/fixtures.js';
 import { SAMPLE_LISTING, DOC_RULES, maxIncome } from '../src/data.js';
 
-const run = (id, rule = 'hdc', overrides = {}) =>
+const run = (id, rule = 'handbook', overrides = {}) =>
   evaluate({
     application: { ...CASES.find((c) => c.id === id).application, ...overrides },
     listing: SAMPLE_LISTING,
@@ -48,9 +48,13 @@ test('two earners are combined; a near miss goes to a person, not a rejection', 
   assert.ok(codes(r).includes('near_limit'));
 });
 
-test('same stubs, different building rule, different outcome', () => {
-  assert.equal(run('sam', 'hdc').decision, 'needs_documents');
-  assert.equal(run('sam', 'hpd').decision, 'eligible');
+test('stub count depends on pay frequency: weekly needs 4, every two weeks needs 2', () => {
+  const sam = run('sam');
+  assert.equal(sam.decision, 'needs_documents');
+  assert.ok(codes(sam).includes('too_few_stubs'));
+  assert.ok(!codes(run('maria')).includes('too_few_stubs'), '6 biweekly stubs is more than the 2 required');
+  assert.equal(DOC_RULES.handbook.requiredFor.weekly, 4);
+  assert.equal(DOC_RULES.handbook.requiredFor.semimonthly, 2);
 });
 
 test('YTD that does not reconcile is flagged', () => {
@@ -61,7 +65,7 @@ test('YTD that does not reconcile is flagged', () => {
 
 test('voucher waives minimum income; without it, the applicant is under', () => {
   assert.equal(run('devon').decision, 'eligible');
-  const noVoucher = run('devon', 'hdc', { hasRentalVoucher: false });
+  const noVoucher = run('devon', 'handbook', { hasRentalVoucher: false });
   assert.equal(noVoucher.decision, 'ineligible');
   assert.equal(noVoucher.preliminary, 'under');
   assert.match(noVoucher.applicantMessage, /VOUCHER/);
@@ -82,11 +86,11 @@ test('over-income applicants are pointed to a band they fit', () => {
 });
 
 test('every applicant gets a one-line next action for the admin queue', () => {
-  assert.equal(run('sam').nextAction, 'Request 4 more stubs');
+  assert.equal(run('sam').nextAction, 'Request 2 more stubs');
   assert.equal(run('tanya').nextAction, 'Request a current stub and the missing stub');
   assert.equal(run('chen').nextAction, 'Check for one-time pay or a pending raise');
   assert.equal(run('maria').nextAction, 'Move to full document review');
-  assert.equal(run('devon', 'hdc', { hasRentalVoucher: false }).nextAction, 'Ask whether household has a voucher');
+  assert.equal(run('devon', 'handbook', { hasRentalVoucher: false }).nextAction, 'Ask whether household has a voucher');
 });
 
 test('every decision has an audit trail ending in the decision', () => {

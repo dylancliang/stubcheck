@@ -46,22 +46,17 @@ export function maxIncome(amiPercent, householdSize) {
   return row[householdSize - 1];
 }
 
-// Document rules. These two public sources ask for different numbers of stubs,
-// which is the point: the product has to know which rule a building follows.
+// Document rule. The HPD/HDC Marketing Handbook (April 2025) covers both HPD and
+// HDC buildings: current, consecutive stubs covering about a month of wages.
+// The count depends on pay frequency, so the engine reads it per earner.
 export const DOC_RULES = {
-  hdc: {
-    id: 'hdc',
-    label: 'HDC lottery checklist',
-    requiredStubs: 6,
-    note: 'HDC\'s lottery interview checklist asks for the last six pay stubs.',
-    source: 'NYC HDC lottery documentation checklist (as reported by PIX11)',
-  },
-  hpd: {
-    id: 'hpd',
-    label: 'HPD Verification of Wages',
-    requiredStubs: 2,
-    note: 'HPD\'s Verification of Wages form accepts two recent consecutive pay stubs.',
-    source: 'https://www.nyc.gov/assets/hpd/downloads/pdfs/services/verification-wages-english.pdf',
+  handbook: {
+    id: 'handbook',
+    label: 'HPD/HDC Marketing Handbook (Apr 2025)',
+    requiredFor: { weekly: 4, biweekly: 2, semimonthly: 2, monthly: 2 },
+    short: '2 stubs, or 4 if paid weekly',
+    note: 'Current, consecutive pay stubs covering about a month: 2 if paid monthly, twice a month or every two weeks; 4 if paid weekly.',
+    source: 'HPD/HDC Marketing Handbook, April 2025, Section 5-4.C',
   },
 };
 

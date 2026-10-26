@@ -96,13 +96,13 @@ export const CASES = [
   },
   {
     id: 'sam',
-    title: 'Two stubs: enough for HPD, not for HDC',
-    why: 'Same applicant, same stubs. Switch the document rule above and watch the outcome change.',
+    title: 'Paid weekly: two stubs aren\'t enough',
+    why: 'The handbook asks for about a month of pay: 2 stubs if paid every two weeks, but 4 if paid weekly. Sam is paid weekly and sent 2.',
     application: {
       applicantName: 'Sam Okafor',
       householdSize: 1,
       members: [
-        { name: 'Sam Okafor', stubs: makeStubs({ employer: 'Greenpoint Logistics', frequency: 'biweekly', lastPayDate: '2026-10-02', grosses: steady(2, 2450) }) },
+        { name: 'Sam Okafor', stubs: makeStubs({ employer: 'Greenpoint Logistics', frequency: 'weekly', lastPayDate: '2026-10-02', grosses: steady(2, 1225) }) },
       ],
     },
   },

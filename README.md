@@ -23,11 +23,10 @@ I wanted to understand that work from the inside. Most of the hard part isn't ar
 |---|---|
 | Annualize by pay frequency: weekly ×52, biweekly ×26, semimonthly ×24, monthly ×12 | HUD Handbook 4350.3, Ch. 5 |
 | 2026 income limits by household size and % AMI (100% AMI for 3 people = $152,700) | [NYC HPD AMI chart](https://www.nyc.gov/site/hpd/services-and-information/area-median-income.page) |
-| Two recent consecutive pay stubs | [HPD Verification of Wages form](https://www.nyc.gov/assets/hpd/downloads/pdfs/services/verification-wages-english.pdf) |
-| Last six pay stubs | HDC lottery interview checklist |
+| Current, consecutive pay stubs covering about a month: 2 if paid monthly, twice a month or every two weeks; 4 if paid weekly | [HPD/HDC Marketing Handbook, April 2025](https://www.nyc.gov/assets/hpd/downloads/pdfs/services/marketing-handbook-8-21.pdf), Section 5-4.C |
 | Rental voucher holders aren't held to the minimum income | Housing Connect listings (confirm per listing) |
 
-The two stub rules don't match. That's on purpose here: the building's financing decides which one applies, so the engine takes the document rule as an input instead of hard-coding one.
+**Correction:** an earlier version of this repo used a six-stub rule taken from news coverage of an older HDC checklist, and compared it with HPD's two-stub form. The April 2025 Marketing Handbook covers both HPD and HDC buildings and sets the rule above, so that's what the engine uses now. The rule is still passed in as an input, because handbooks change.
 
 ## The cases
 
@@ -39,7 +38,7 @@ All applicants, employers, and figures are synthetic.
 | Andre | Paid twice a month. ×24, not ×26. Misreading it as biweekly puts him $4,100 over the limit and wrongly rejects him. | Eligible |
 | Keisha | Overtime dropped off. Recent stubs say eligible; year-to-date says over. | Review |
 | Wei & Lin | Two earners on different schedules, combined. $240 over the limit. | Review, not auto-reject |
-| Sam | Two stubs | Enough under HPD's rule, not HDC's |
+| Sam | Paid weekly, sent two stubs | Needs 2 more: weekly pay needs 4 |
 | Rosa | Year-to-date jumps $500 more than that stub's gross pay | Review |
 | Devon | Under the minimum income, has a rental voucher | Eligible |
 | Tanya | Newest stub is from July, and one pay period is missing | Asks for exactly what's missing |
@@ -56,7 +55,7 @@ All applicants, employers, and figures are synthetic.
 
 ## What I'd ask an agent next
 
-1. When HPD and HDC requirements differ for a building, who decides what to ask for, and is it ever written down?
+1. When a building asks for more than the handbook's minimum, like extra stubs, where does that come from, and is it written down?
 2. How do you handle overtime that's clearly ending? What evidence do reviewers accept?
 3. What's the most common reason a file sits waiting? Missing documents, expired ones, or something else?
 4. Which pay stub formats (gig apps, cash employers, handwritten) cause the most trouble?

@@ -59,7 +59,7 @@ export function evaluateMember(member, { docRule, listing, asOf }) {
   const result = { name: member.name, stubCount: stubs.length, flags, audit };
 
   if (stubs.length === 0) {
-    flag('docs', 'no_stubs', `No pay stubs from ${member.name}.`, `${whose} ${docRule.requiredStubs} most recent pay stubs`);
+    flag('docs', 'no_stubs', `No pay stubs from ${member.name}.`, `${whose} most recent pay stubs covering a month (${docRule.short})`);
     log('Collect stubs', 'No stubs on file.', SOURCES.docRule);
     return { ...result, annualFromStubs: 0, annualFromYtd: null };
   }
@@ -77,13 +77,15 @@ export function evaluateMember(member, { docRule, listing, asOf }) {
   }
   log('Pay frequency', `${frequency} (${PERIODS_PER_YEAR[frequency]} pay periods a year).`, SOURCES.annualize);
 
-  // 2. Enough stubs for this building's rule?
-  if (stubs.length < docRule.requiredStubs) {
-    const missing = docRule.requiredStubs - stubs.length;
-    flag('docs', 'too_few_stubs', `Need ${missing} more pay stub${missing > 1 ? 's' : ''} from ${member.name} (${docRule.label} asks for ${docRule.requiredStubs}).`,
+  // 2. Enough stubs for the handbook's rule? The count depends on pay frequency.
+  const required = docRule.requiredFor[frequency];
+  result.stubsRequired = required;
+  if (stubs.length < required) {
+    const missing = required - stubs.length;
+    flag('docs', 'too_few_stubs', `Need ${missing} more pay stub${missing > 1 ? 's' : ''} from ${member.name} (${frequency} pay: the handbook asks for ${required}).`,
       `${missing} more of ${whose} most recent pay stubs, in a row`);
   }
-  log('Stub count', `${stubs.length} on file; ${docRule.label} requires ${docRule.requiredStubs}.`, docRule.source);
+  log('Stub count', `${stubs.length} on file; ${frequency} pay requires ${required}.`, docRule.source);
 
   // 3. Is the newest stub recent enough?
   const age = daysBetween(stubs[0].payDate, asOf);

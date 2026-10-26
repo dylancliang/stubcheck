@@ -2,7 +2,7 @@ import { evaluate, DECISIONS } from './rules.js';
 import { CASES, AS_OF } from './fixtures.js';
 import { SAMPLE_LISTING, DOC_RULES } from './data.js';
 
-const state = { view: 'queue', caseId: CASES[0].id, rule: 'hdc', voucher: {}, filter: 'all', sort: { key: 'status', dir: 'asc' } };
+const state = { view: 'queue', caseId: CASES[0].id, rule: 'handbook', voucher: {}, filter: 'all', sort: { key: 'status', dir: 'asc' } };
 
 const STATUS_ORDER = ['needs_documents', 'needs_review', 'eligible', 'ineligible'];
 
@@ -18,7 +18,7 @@ function run(c) {
 
 function renderRule() {
   $('rule').innerHTML = Object.values(DOC_RULES)
-    .map((r) => `<button type="button" id="rule-${r.id}" data-rule="${r.id}" aria-pressed="${state.rule === r.id}">${esc(r.label)} · ${r.requiredStubs} stubs</button>`)
+    .map((r) => `<button type="button" id="rule-${r.id}" data-rule="${r.id}" aria-pressed="${state.rule === r.id}">${esc(r.label)} · ${esc(r.short)}</button>`)
     .join('');
 }
 
@@ -136,11 +136,12 @@ const COLUMNS = [
 ];
 
 function rows() {
-  const need = DOC_RULES[state.rule].requiredStubs;
+  const req = DOC_RULES[state.rule].requiredFor;
   return CASES.map((c) => {
     const r = run(c);
     const have = c.application.members.reduce((s, m) => s + m.stubs.length, 0);
-    return { c, r, have, need: need * c.application.members.length };
+    const need = c.application.members.reduce((s, m) => s + (req[m.stubs[0]?.frequency] ?? 2), 0);
+    return { c, r, have, need };
   });
 }
 
@@ -183,7 +184,7 @@ function renderQueueTable() {
     </tr>`;
   }).join('') || `<tr><td colspan="${COLUMNS.length}" class="hint">No applicants with this status.</td></tr>`;
 
-  $('qhint').textContent = `${SAMPLE_LISTING.amiPercent}% AMI listing · ${DOC_RULES[state.rule].label} (${DOC_RULES[state.rule].requiredStubs} stubs per earner) · as of ${AS_OF}. Click a row to open the file.`;
+  $('qhint').textContent = `${SAMPLE_LISTING.amiPercent}% AMI listing · ${DOC_RULES[state.rule].label} (${DOC_RULES[state.rule].short} per earner) · as of ${AS_OF}. Click a row to open the file.`;
 }
 
 function csv() {
